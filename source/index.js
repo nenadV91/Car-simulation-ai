@@ -11,7 +11,7 @@ function setup() {
   canvas = createCanvas(width, height);
 
   track = new Track(tracks[0]);
-  car = new Car({ track, x: 80, y: 285 });
+  car = new Car({ x: 80, y: 285 });
   stats = new Stats({ car, track });
 
   stats.add('Speed', 'speed');
@@ -47,6 +47,14 @@ function draw() {
     car.steer('left')
   } else {
     car.resetSteer('left');
+  }
+
+  const offTrack = car.drive(track);
+
+  if(offTrack) {
+    car.color = car.errorColor;
+  } else {
+    car.color = car.initialColor;
   }
 }
 

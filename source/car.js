@@ -1,7 +1,6 @@
 class Car {
   constructor(opts = {}) {
     this.opts = opts;
-    this.track = opts.track;
     this.x = opts.x;
     this.y = opts.y;
     this.width = 15;
@@ -17,8 +16,9 @@ class Car {
     this.deceleration = 0.05;
     this.wheelSize = 5;
 
-    this.initialcolor = color(70, 70, 70);
-    this.bodyColor = this.initialcolor;
+    this.initialColor = color(70, 70, 70);
+    this.errorColor = color(255, 0, 0);
+    this.color = this.initialColor;
 
     this.wheelBase = this.height;
     this.front = createVector(0, 0);
@@ -34,12 +34,17 @@ class Car {
 
     this.position = createVector(this.x, this.y);
     this.velocity = createVector(0, 0);
+
+    this.edgePoints = [];
+    this.visionLines = [];
+    this.visionPoints = [];
   }
 
   update() {
     this.constrain();
     this.friction();
     this.move();
+    this.getEdgePoints();
   }
 
   constrain() {
@@ -108,8 +113,63 @@ class Car {
     }
   }
 
-  drive() {
+  isColliding(p1, p2, t1, t2, obj = false) {
+    return collideLineLine(p1.x, p1.y, p2.x, p2.y, t1.x, t1.y, t2.x, t2.y, obj);
+  }
 
+  rotatePoint({ point, origin, angle }) {
+    const x = cos(angle) * (point.x - origin.x) - sin(angle) * (point.y - origin.y) + origin.x
+    const y = sin(angle) * (point.x - origin.x) + cos(angle) * (point.y - origin.y) + origin.y
+    return createVector(x, y);
+  }
+
+  getEdgePoints() {
+    const h = this.height / 2;
+    const w = this.width / 2;
+    const pos = this.position;
+
+    this.edgePoints = [
+      createVector(pos.x - w, pos.y - h),
+      createVector(pos.x + w, pos.y - h),
+      createVector(pos.x - w, pos.y + h),
+      createVector(pos.x + w, pos.y + h)
+    ].map(point => this.rotatePoint({
+      point,
+      origin: this.position,
+      angle: -this.heading
+    }))
+  }
+
+  drive(track) {
+    let inner = track.inner;
+    let outer = track.outer;
+    let offTrack = false;
+
+    for(let i = 0; i < this.edgePoints.length; i++) {
+      const point = this.edgePoints[i];
+      const next = this.edgePoints[i + 1] || this.edgePoints[0];
+
+      for(let j = 0; j < inner.length; j++) {
+        const pointI = inner[j];
+        const pointO = outer[j];
+        const nextI = inner[j + 1] || inner[0];
+        const nextO = outer[j + 1] || outer[0];
+
+        const checkI = this.isColliding(point, next, pointI, nextI);
+        if(checkI) {
+          offTrack = true;
+          break;
+        }
+
+        const checkO = this.isColliding(point, next, pointO, nextO);
+        if(checkO) {
+          offTrack = true;
+          break;
+        }
+      }
+    }
+
+    return offTrack;
   }
 
   windshield() {
@@ -127,8 +187,16 @@ class Car {
 
   body() {
     noStroke();
-    fill(this.bodyColor);
+    fill(this.color);
     rect(0, 0, this.width, this.height);
+  }
+
+  points() {
+    this.edgePoints.forEach(point => {
+      noStroke();
+      fill(this.errorColor);
+      circle(point.x, point.y, 3);
+    })
   }
 
   show() {
@@ -140,5 +208,7 @@ class Car {
     this.lights();
     this.windshield();
     pop();
+
+    this.points();
   }
 }
