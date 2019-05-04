@@ -24,6 +24,14 @@ class Car {
     this.front = createVector(0, 0);
     this.back = createVector(0, 0);
 
+    this.gear = 1;
+    this.gears = {
+      1: 2,
+      2: 2.5,
+      3: 3,
+      4: 3.5
+    }
+
     this.position = createVector(this.x, this.y);
     this.velocity = createVector(0, 0);
   }
@@ -46,14 +54,19 @@ class Car {
     if(this.speed < 0) this.speed += this.frictionRate
   }
 
+  shift(dir) {
+    if(dir === 'up' && this.gear < 4) this.gear += 1;
+    if(dir === 'down' && this.gear > 1) this.gear -= 1;
+  }
+
   steer(dir) {
     if(dir == 'up') {
-      if(this.speed < this.maxSpeed) this.speed += 0.05
+      if(this.speed < this.gears[this.gear]) this.speed += this.acceleration;
     }
 
     if(dir == 'down') {
       if(this.speed > 0) this.speed -= this.deceleration;
-      else if(abs(this.speed) < this.maxSpeed) this.speed -= 0.05
+      else if(abs(this.speed) < this.gears[this.gear]) this.speed -= this.acceleration;
     }
 
     if(dir == 'left') {

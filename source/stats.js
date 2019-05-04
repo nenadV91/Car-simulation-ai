@@ -1,5 +1,5 @@
 class Stats {
-  constructor(car) {
+  constructor({car}) {
     this.car = car;
     this.count = 0;
     this.stats = []

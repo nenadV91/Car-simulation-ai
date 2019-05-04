@@ -10,14 +10,21 @@ function setup() {
   height = 600;
   canvas = createCanvas(width, height);
 
-  stats = new Stats();
   track = new Track(tracks[0]);
-  car = new Car({ track, x: 515, y: 225 });
+  car = new Car({ track, x: 80, y: 285 });
+  stats = new Stats({ car, track });
+
+  stats.add('Speed', 'speed');
+  stats.add('Heading', 'heading');
+  stats.add('Steer angle', 'steerAngle');
+  stats.add('Reverse', null, car => car.speed >= 0 ? 'False' : 'True')
+  stats.add('Gear', null, car => int(car.gear));
 }
 
 function draw() {
   background(config.bgcolor);
   track.show();
+  stats.show();
 
   car.update();
   car.show();
@@ -44,7 +51,13 @@ function draw() {
 }
 
 function keyPressed() {
+  if(keyCode === 87) {
+    car.shift('up');
+  }
 
+  if(keyCode === 83) {
+    car.shift('down');
+  }
 }
 
 function mousePressed() {
