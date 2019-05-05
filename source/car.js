@@ -45,17 +45,81 @@ class Car {
     this.checkpoint = 0;
     this.points = 0;
     this.round = 0;
+
+    if(opts.brain instanceof NeuralNetwork) {
+      this.brain = opts.brain.clone();
+      this.brain.mutation(opts.mRate || 0.1);
+    } else {
+      this.brain = this.initBrain();
+    }
+  }
+
+  initBrain() {
+    const brain = new NeuralNetwork();
+    brain.add(new Layer({ inodes: 25, onodes: 15 }));
+    brain.add(new Layer({ onodes: 10 }))
+    brain.add(new Layer({ onodes: 6 }))
+    return brain;
+  }
+
+  auto() {
+    const [up, down, left, right, shiftUp, shiftDown] = this.decide();
+
+    if(up > 0.5) {
+      this.steer('up');
+    }
+
+    if(down > 0.5) {
+      this.steer('down');
+    }
+
+    if(left > 0.5) {
+      this.steer('left');
+    } else if(right > 0.5) {
+      this.steer('right');
+    }
+
+    if(shiftUp > 0.5) {
+      this.shift('up');
+    } else if(shiftDown > 0.5) {
+      this.shift('down');
+    }
+  }
+
+  decide() {
+    const input = [];
+
+    input.push(map(this.position.x, 0, width, 0, 1)); // position
+    input.push(map(this.position.y, 0, height, 0, 1)); // position
+    input.push(map(this.speed, 0, 5, 0, 1)); // speed
+    input.push(map(this.gear, 0, 4, 0, 1)) // gear
+    input.push(map(this.steerAngle, 0, this.maxSteerAngle, 0, 1)); // steer angle
+
+    // vision points
+    for(let i = 0; i < this.visionPoints.length; i++) {
+      const point = this.visionPoints[i];
+
+      if(point) {
+        const x = map(point.x, 0, width, 0, 1);
+        const y = map(point.y, 0, height, 0, 1);
+        input.push(x, y);
+      } else {
+        input.push(0, 0);
+      }
+    }
+
+    return this.brain.predict(input);
   }
 
   update() {
-    this.constrain();
-    this.friction();
-    this.move();
-
     this.getEdgePoints();
     this.getVisionLines();
     this.getVisionPoints();
     this.crossCheckpoint();
+
+    this.constrain();
+    this.friction();
+    this.move();
   }
 
   constrain() {
@@ -254,7 +318,6 @@ class Car {
         if(crossed) {
           this.points++
           this.checkpoint++;
-          console.log('Checkpoint crossed');
 
           if(this.checkpoint >= checkpoints.length) {
             this.checkpoint = 0;

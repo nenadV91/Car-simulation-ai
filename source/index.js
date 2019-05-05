@@ -30,6 +30,7 @@ function draw() {
 
   car.update();
   car.show();
+  car.auto();
 
   if(keyIsDown(DOWN_ARROW)) {
     car.steer('down')
