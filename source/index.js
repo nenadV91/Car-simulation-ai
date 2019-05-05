@@ -6,12 +6,12 @@ let stats;
 let car;
 
 function setup() {
-  width = 600;
-  height = 600;
+  width = 700;
+  height = 650;
   canvas = createCanvas(width, height);
 
   track = new Track(tracks[0]);
-  car = new Car({ x: 80, y: 285, track });
+  car = new Car({ track });
   stats = new Stats({ car, track });
 
   stats.add('Speed', 'speed');

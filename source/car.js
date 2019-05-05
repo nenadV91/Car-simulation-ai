@@ -1,11 +1,11 @@
 class Car {
   constructor(opts = {}) {
     this.opts = opts;
-    this.x = opts.x;
-    this.y = opts.y;
-    this.width = 15;
+    this.width = 14;
     this.height = 25;
     this.track = opts.track;
+    this.x = this.track.start.x;
+    this.y = this.track.start.y;
 
     this.steerAngle = 0;
     this.maxSteerAngle = PI / 4;
@@ -20,6 +20,7 @@ class Car {
     this.initialColor = color(70, 70, 70);
     this.errorColor = color(255, 0, 0);
     this.lineColor = color(100, 100, 100, 100);
+    this.pointColor = color(67, 100, 221)
     this.color = this.initialColor;
 
     this.wheelBase = this.height;
@@ -235,7 +236,7 @@ class Car {
   windshield() {
     noStroke();
     fill(color(255, 255, 255, 200));
-    rect(0, 5, this.width - 2, 5);
+    rect(0, 3, this.width - 2, 4);
   }
 
   lights() {
@@ -254,7 +255,7 @@ class Car {
   showEdgePoints() {
     this.edgePoints.forEach(point => {
       noStroke();
-      fill(this.errorColor);
+      fill(this.pointColor);
       circle(point.x, point.y, 3);
     })
   }
@@ -269,7 +270,7 @@ class Car {
   showVisionPoints() {
     this.visionPoints.forEach((point) => {
       if(point !== null) {
-        fill(this.initialColor);
+        fill(this.pointColor);
         circle(point.x, point.y, 5);
       }
     })
@@ -285,8 +286,16 @@ class Car {
     this.windshield();
     pop();
 
-    // this.showEdgePoints();
-    this.showVisionLines();
-    this.showVisionPoints();
+    if(config.edgePoints) {
+      this.showEdgePoints();
+    }
+
+    if(config.visionLines) {
+      this.showVisionLines();
+    }
+
+    if(config.visionPoints) {
+      this.showVisionPoints();
+    }
   }
 }

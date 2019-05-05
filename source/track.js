@@ -1,6 +1,7 @@
 class Track {
   constructor(data) {
     this.data = data;
+    this.checkpointColor = color(134, 200, 248)
     this.stroke = color(44, 60, 80);
     this.fill = color(255);
 
@@ -18,6 +19,8 @@ class Track {
 
     this.inner = this.toArray(data.inner);
     this.outer = this.toArray(data.outer).reverse();
+    this.checkpoints = data.checkpoints || [];
+    this.start = data.start || { x: 50, y: 50 }
   }
 
 
@@ -32,6 +35,14 @@ class Track {
     line.forEach(({ x, y }) => vertex(+x, +y))
   }
 
+  showCheckpoints() {
+    this.checkpoints.forEach(([start, end]) => {
+      noFill();
+      stroke(this.checkpointColor)
+      line(start.x, start.y, end.x, end.y);
+    })
+  }
+
   show() {
     fill(this.fill);
     stroke(this.stroke);
@@ -42,5 +53,9 @@ class Track {
     this.showLine(this.inner);
     endContour()
     endShape(CLOSE);
+
+    if(config.checkpoints) {
+      this.showCheckpoints();
+    }
   }
 }
