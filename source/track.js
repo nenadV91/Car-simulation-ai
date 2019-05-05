@@ -21,6 +21,7 @@ class Track {
     this.outer = this.toArray(data.outer).reverse();
     this.checkpoints = data.checkpoints || [];
     this.start = data.start || { x: 50, y: 50 }
+    this.heading = data.heading || 180;
   }
 
 

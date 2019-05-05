@@ -1,4 +1,5 @@
 let canvas;
+let data;
 let width;
 let height;
 let track;
@@ -6,11 +7,12 @@ let stats;
 let car;
 
 function setup() {
-  width = 700;
-  height = 650;
+  data = tracks[0];
+  width = data.width || 800;
+  height = data.height || 650;
   canvas = createCanvas(width, height);
 
-  track = new Track(tracks[0]);
+  track = new Track(data);
   car = new Car({ track });
   stats = new Stats({ car, track });
 

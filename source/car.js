@@ -11,7 +11,7 @@ class Car {
     this.maxSteerAngle = PI / 4;
     this.speed = 0;
     this.maxSpeed = 2;
-    this.heading = PI;
+    this.heading = radians(this.track.heading || 180);
     this.frictionRate = 0.025;
     this.acceleration = 0.2;
     this.deceleration = 0.05;
@@ -30,9 +30,9 @@ class Car {
     this.gear = 1;
     this.gears = {
       1: 2,
-      2: 2.5,
-      3: 3,
-      4: 3.5
+      2: 3,
+      3: 4,
+      4: 5
     }
 
     this.position = createVector(this.x, this.y);
