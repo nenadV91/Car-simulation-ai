@@ -41,6 +41,10 @@ class Car {
     this.edgePoints = [];
     this.visionLines = [];
     this.visionPoints = [];
+
+    this.checkpoint = 0;
+    this.points = 0;
+    this.round = 0;
   }
 
   update() {
@@ -51,6 +55,7 @@ class Car {
     this.getEdgePoints();
     this.getVisionLines();
     this.getVisionPoints();
+    this.crossCheckpoint();
   }
 
   constrain() {
@@ -175,15 +180,15 @@ class Car {
     let outer = this.track.outer;
     let offTrack = false;
 
-    for(let j = 0; j < inner.length; j++) {
-      const pointI = inner[j];
-      const pointO = outer[j];
-      const nextI = inner[j + 1] || inner[0];
-      const nextO = outer[j + 1] || outer[0];
+    for(let i = 0; i < this.edgePoints.length; i++) {
+      const point = this.edgePoints[i];
+      const next = this.edgePoints[i + 1] || this.edgePoints[0];
 
-      for(let i = 0; i < this.edgePoints.length; i++) {
-        const point = this.edgePoints[i];
-        const next = this.edgePoints[i + 1] || this.edgePoints[0];
+      for(let j = 0; j < inner.length; j++) {
+        const pointI = inner[j];
+        const pointO = outer[j];
+        const nextI = inner[j + 1] || inner[0];
+        const nextO = outer[j + 1] || outer[0];
 
         const checkI = this.isColliding(point, next, pointI, nextI);
         if(checkI) {
@@ -233,6 +238,35 @@ class Car {
     }
   }
 
+  crossCheckpoint() {
+    const checkpoints = this.track.checkpoints;
+    const checkpoint = checkpoints[this.checkpoint];
+
+    if(checkpoint !== undefined) {
+      const [start, end] = checkpoint;
+
+      for(let i = 0; i < this.edgePoints.length; i++) {
+        const point = this.edgePoints[i];
+        const next = this.edgePoints[i + 1] || this.edgePoints[0];
+
+        const crossed = this.isColliding(point, next, start, end);
+
+        if(crossed) {
+          this.points++
+          this.checkpoint++;
+          console.log('Checkpoint crossed');
+
+          if(this.checkpoint >= checkpoints.length) {
+            this.checkpoint = 0;
+            this.round++;
+          }
+
+          break;
+        }
+      }
+    }
+  }
+
   windshield() {
     noStroke();
     fill(color(255, 255, 255, 200));
@@ -276,6 +310,17 @@ class Car {
     })
   }
 
+  showCheckpoint() {
+    const checkpoints = this.track.checkpoints;
+    const checkpoint = checkpoints[this.checkpoint];
+
+    if(checkpoint) {
+      const [start, end] = checkpoint;
+      stroke(this.errorColor);
+      line(start.x, start.y, end.x, end.y)
+    }
+  }
+
   show() {
     push();
     rectMode(CENTER)
@@ -296,6 +341,10 @@ class Car {
 
     if(config.visionPoints) {
       this.showVisionPoints();
+    }
+
+    if(config.currentCheckpoint) {
+      this.showCheckpoint();
     }
   }
 }
