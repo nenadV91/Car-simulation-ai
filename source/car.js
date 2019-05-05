@@ -5,6 +5,7 @@ class Car {
     this.y = opts.y;
     this.width = 15;
     this.height = 25;
+    this.track = opts.track;
 
     this.steerAngle = 0;
     this.maxSteerAngle = PI / 4;
@@ -18,6 +19,7 @@ class Car {
 
     this.initialColor = color(70, 70, 70);
     this.errorColor = color(255, 0, 0);
+    this.lineColor = color(100, 100, 100, 100);
     this.color = this.initialColor;
 
     this.wheelBase = this.height;
@@ -44,14 +46,17 @@ class Car {
     this.constrain();
     this.friction();
     this.move();
+
     this.getEdgePoints();
+    this.getVisionLines();
+    this.getVisionPoints();
   }
 
   constrain() {
-    if(this.position.x < 0) this.position.x = width;
-    if(this.position.x > width) this.position.x = 0;
-    if(this.position.y < 0) this.position.y = height;
-    if(this.position.y > height) this.position.y = 0;
+    if(this.position.x < 0) this.position.x = 0;
+    if(this.position.x > width) this.position.x = width;
+    if(this.position.y < 0) this.position.y = 0;
+    if(this.position.y > height) this.position.y = height;
   }
 
   friction() {
@@ -140,20 +145,44 @@ class Car {
     }))
   }
 
-  drive(track) {
-    let inner = track.inner;
-    let outer = track.outer;
+  visionLine(angle, length) {
+    const start = this.position.copy();
+    const end = this.position.copy();
+    const delta = createVector(0, end.y);
+    delta.rotate(-this.heading + radians(angle)).normalize().mult(length);
+    end.add(delta);
+    return { start, end }
+  }
+
+  getVisionLines() {
+    this.visionLines = [
+      this.visionLine(0, 300),
+      this.visionLine(30, 250),
+      this.visionLine(-30, 250),
+      this.visionLine(60, 150),
+      this.visionLine(-60, 150),
+      this.visionLine(90, 100),
+      this.visionLine(-90, 100),
+      this.visionLine(-145, 150),
+      this.visionLine(145, 150),
+      this.visionLine(180, 250)
+    ]
+  }
+
+  drive() {
+    let inner = this.track.inner;
+    let outer = this.track.outer;
     let offTrack = false;
 
-    for(let i = 0; i < this.edgePoints.length; i++) {
-      const point = this.edgePoints[i];
-      const next = this.edgePoints[i + 1] || this.edgePoints[0];
+    for(let j = 0; j < inner.length; j++) {
+      const pointI = inner[j];
+      const pointO = outer[j];
+      const nextI = inner[j + 1] || inner[0];
+      const nextO = outer[j + 1] || outer[0];
 
-      for(let j = 0; j < inner.length; j++) {
-        const pointI = inner[j];
-        const pointO = outer[j];
-        const nextI = inner[j + 1] || inner[0];
-        const nextO = outer[j + 1] || outer[0];
+      for(let i = 0; i < this.edgePoints.length; i++) {
+        const point = this.edgePoints[i];
+        const next = this.edgePoints[i + 1] || this.edgePoints[0];
 
         const checkI = this.isColliding(point, next, pointI, nextI);
         if(checkI) {
@@ -170,6 +199,37 @@ class Car {
     }
 
     return offTrack;
+  }
+
+  getVisionPoints() {
+    let inner = this.track.inner;
+    let outer = this.track.outer;
+
+    for(let i = 0; i < this.visionLines.length; i++) {
+      const { start, end } = this.visionLines[i];
+
+      for(let j = 0; j < inner.length; j++) {
+        const pointI = inner[j];
+        const pointO = outer[j];
+        const nextI = inner[j + 1] || inner[0];
+        const nextO = outer[j + 1] || outer[0];
+
+        const checkI = this.isColliding(start, end, pointI, nextI, true);
+        const checkO = this.isColliding(start, end, pointO, nextO, true);
+
+        if(checkI.x || checkI.y) {
+          this.visionPoints[i] = checkI;
+          break;
+        }
+
+        if(checkO.x || checkO.y) {
+          this.visionPoints[i] = checkO;
+          break;
+        }
+
+        this.visionPoints[i] = null;
+      }
+    }
   }
 
   windshield() {
@@ -191,11 +251,27 @@ class Car {
     rect(0, 0, this.width, this.height);
   }
 
-  points() {
+  showEdgePoints() {
     this.edgePoints.forEach(point => {
       noStroke();
       fill(this.errorColor);
       circle(point.x, point.y, 3);
+    })
+  }
+
+  showVisionLines() {
+    this.visionLines.forEach(({ start, end }) => {
+      stroke(this.lineColor);
+      line(start.x, start.y, end.x, end.y);
+    })
+  }
+
+  showVisionPoints() {
+    this.visionPoints.forEach((point) => {
+      if(point !== null) {
+        fill(this.initialColor);
+        circle(point.x, point.y, 5);
+      }
     })
   }
 
@@ -209,6 +285,8 @@ class Car {
     this.windshield();
     pop();
 
-    this.points();
+    // this.showEdgePoints();
+    this.showVisionLines();
+    this.showVisionPoints();
   }
 }
