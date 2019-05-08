@@ -165,9 +165,9 @@ class Car {
     const { heading, wheelBase, steerAngle, speed } = this;
     const front = createVector(x + (wheelBase / 2) * sin(heading), y + (wheelBase / 2) * cos(heading));
     const back = createVector(x - (wheelBase / 2) * sin(heading), y - (wheelBase / 2) * cos(heading));
+
     front.add(speed * sin(heading + steerAngle), speed * cos(heading + steerAngle))
     back.add(speed * sin(heading), speed * cos(heading))
-
     this.front = front;
     this.back = back;
 
