@@ -45,16 +45,9 @@ class Car {
     this.checkpoint = 0;
     this.points = 0;
     this.round = 0;
-
-    this.controls = {
-      up: 0,
-      down: 0,
-      left: 0,
-      right: 0,
-      shiftUp: 0,
-      shiftDown: 0
-    }
     this.data = [];
+
+    this.isAuto = false;
 
     if(opts.brain instanceof NeuralNetwork) {
       this.brain = opts.brain.clone();
@@ -66,58 +59,88 @@ class Car {
 
   initBrain() {
     const brain = new NeuralNetwork();
-    brain.add(new Layer({ inodes: 24, onodes: 15 }));
-    brain.add(new Layer({ onodes: 10 }))
-    brain.add(new Layer({ onodes: 6 }))
+    brain.add(new Layer({ inodes: 14, onodes: 12 }));
+    brain.add(new Layer({ onodes: 8 }))
+    brain.add(new Layer({ onodes: 4 }))
     return brain;
   }
 
+  toggleAuto() {
+    this.isAuto = !this.isAuto;
+  }
+
   auto() {
-    const [up, down, left, right, sUp, sDown] = this.predict();
+    const output = this.brain.predict(this.inputs());
+    const [speed, gear, heading, steerAngle] = output;
 
-    if(up > 0.5) {
-      this.steer('up');
-    }
-
-    if(down > 0.5) {
-      this.steer('down');
-    }
-
-    if(left > 0.5) {
-      this.steer('left');
-    } else if(right > 0.5) {
-      this.steer('right');
-    }
-
-    if(sUp > 0.5) {
-      this.shift('up');
-    } else if(sDown > 0.5) {
-      this.shift('down');
-    }
+    this.speed = this.mapSpeed(speed, true);
+    this.gear = this.mapGear(gear, true);
+    this.heading = this.mapHeading(heading, true);
+    this.steerAngle = this.mapAngle(steerAngle, true);
   }
 
   targets() {
-    return Object.values(this.controls);
+    return [
+      this.mapSpeed(this.speed),
+      this.mapGear(this.gear),
+      this.mapHeading(this.heading),
+      this.mapAngle(this.steerAngle)
+    ]
+  }
+
+  mapSpeed(value, reverse = false) {
+    if(!reverse) {
+      return map(value, 0, 5, 0, 1);
+    } else {
+      return floor(map(value, 0, 1, 0, 5))
+    }
+  }
+
+  mapGear(value, reverse = false) {
+    if(!reverse) {
+      return map(value, 1, 4, 0, 1);
+    } else {
+      return floor(map(value, 0, 1, 1, 4))
+    }
+  }
+
+  mapAngle(value, reverse = false) {
+    const min = -this.maxSteerAngle;
+    const max = this.maxSteerAngle;
+
+    if(!reverse) {
+      return map(value, min, max, 0, 1);
+    } else {
+      return map(value, 0, 1, min, max);
+    }
+  }
+
+  mapHeading(value, reverse = false) {
+    if(!reverse) {
+      return map(value, -PI, PI, 0, 1);
+    } else {
+      return map(value, 0, 1, -PI, PI)
+    }
   }
 
   inputs() {
     const input = [];
 
-    input.push(map(this.speed, 0, 5, 0, 1)); // speed
-    input.push(map(this.gear, 0, 4, 0, 1)) // gear
-    input.push(map(this.steerAngle, -this.maxSteerAngle, this.maxSteerAngle, 0, 1)); // steer angle
-    input.push(map(this.heading, -PI, PI, 0, 1));
+    input.push(this.mapSpeed(this.speed)); // speed
+    input.push(this.mapGear(this.gear)) // gear
+    input.push(this.mapHeading(this.heading)); // heading
+    input.push(this.mapAngle(this.steerAngle)); // steerAngle
 
     // vision points
     for(let i = 0; i < this.visionPoints.length; i++) {
       const point = this.visionPoints[i];
 
       if(point) {
-        const x = map(point.x, 0, width, 0, 1);
-        const y = map(point.y, 0, height, 0, 1);
-        input.push(x, y);
+        const dist = this.position.dist(point);
+        const value = map(dist, 0, 250, 0, 1);
+        input.push(value)
       } else {
-        input.push(0, 0);
+        input.push(0);
       }
     }
 
@@ -127,18 +150,25 @@ class Car {
   record() {
     const inputs = this.inputs();
     const targets = this.targets();
+    this.data.push({ inputs, targets });
 
-    this.data.push({ inputs, targets })
-
-    // this.brain.query(Matrix.fromArray(inputs));
-    // this.brain.update(Matrix.fromArray(targets));
+    if(this.data.length % 500 === 0) {
+      console.log(`recorded: ${this.data.length} units`);
+    }
   }
 
-  train(data) {
+  learn() {
+    if(this.speed > 0.25) {
+      this.brain.query(Matrix.fromArray(this.inputs()));
+      this.brain.update(Matrix.fromArray(this.targets()));
+    }
+  }
+
+  train(data, opts = {}) {
     console.log("Started training");
 
-    for(let i = 0; i < 50; i++) {
-      console.log(i);
+    for(let i = 0; i < (opts.rounds || 10); i++) {
+      console.log(`training round: ${i}`);
 
       for(let j = 0; j < data.length; j++) {
         const { inputs, targets } = random(data)
@@ -147,7 +177,7 @@ class Car {
       }
     }
 
-    console.log('Finished training')
+    console.log('Finished training');
   }
 
   predict() {
@@ -331,12 +361,14 @@ class Car {
         const checkO = this.isColliding(start, end, pointO, nextO, true);
 
         if(checkI.x || checkI.y) {
-          this.visionPoints[i] = checkI;
+          const point = createVector(checkI.x, checkI.y);
+          this.visionPoints[i] = point;
           break;
         }
 
         if(checkO.x || checkO.y) {
-          this.visionPoints[i] = checkO;
+          const point = createVector(checkO.x, checkO.y);
+          this.visionPoints[i] = point;
           break;
         }
 
