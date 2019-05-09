@@ -16,6 +16,10 @@ function setup() {
   car = new Car({ track });
   stats = new Stats({ car, track });
 
+  car.train(trainData, {
+    rounds: 100
+  })
+
   stats.add('Speed', 'speed');
   stats.add('Heading', 'heading');
   stats.add('Steer angle', 'steerAngle');
@@ -30,7 +34,9 @@ function draw() {
 
   car.update();
   car.show();
-  car.learn();
+  // car.learn();
+  // car.record();
+  car.auto();
 
   if(car.isAuto) {
     car.auto()

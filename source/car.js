@@ -59,9 +59,9 @@ class Car {
 
   initBrain() {
     const brain = new NeuralNetwork();
-    brain.add(new Layer({ inodes: 14, onodes: 12 }));
-    brain.add(new Layer({ onodes: 8 }))
-    brain.add(new Layer({ onodes: 4 }))
+    brain.add(new Layer({ inodes: 7, onodes: 9, lr: 0.01 }));
+    brain.add(new Layer({ onodes: 6, lr: 0.01, activation: 'tanh' }))
+    brain.add(new Layer({ onodes: 4, lr: 0.01 }))
     return brain;
   }
 
@@ -137,7 +137,7 @@ class Car {
 
       if(point) {
         const dist = this.position.dist(point);
-        const value = map(dist, 0, 250, 0, 1);
+        const value = map(dist, 0, 150, 0, 1);
         input.push(value)
       } else {
         input.push(0);
@@ -299,16 +299,16 @@ class Car {
 
   getVisionLines() {
     this.visionLines = [
-      this.visionLine(0, 250),
-      this.visionLine(30, 150),
-      this.visionLine(-30, 150),
-      this.visionLine(60, 150),
-      this.visionLine(-60, 150),
-      this.visionLine(90, 150),
-      this.visionLine(-90, 150),
-      this.visionLine(-145, 150),
-      this.visionLine(145, 150),
-      this.visionLine(180, 250)
+      this.visionLine(0, 150),
+      this.visionLine(45, 100),
+      this.visionLine(-45, 100),
+      // this.visionLine(60, 100),
+      // this.visionLine(-60, 100),
+      // this.visionLine(90, 150),
+      // this.visionLine(-90, 150),
+      // this.visionLine(-145, 150),
+      // this.visionLine(145, 150),
+      // this.visionLine(180, 250)
     ]
   }
 
