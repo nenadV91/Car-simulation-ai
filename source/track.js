@@ -1,9 +1,9 @@
 class Track {
   constructor(data) {
     this.data = data;
-    this.checkpointColor = color(134, 200, 248)
-    this.stroke = color(44, 60, 80);
-    this.fill = color(255);
+    this.checkpointColor = color(config.trackCheckpointColor);
+    this.stroke = color(config.trackStroke);
+    this.fill = color(config.trackFill);
 
     if(typeof data !== 'object') {
       throw new Error('data param must be and object.')
@@ -24,6 +24,10 @@ class Track {
     this.heading = data.heading || 180;
   }
 
+  reverse() {
+    this.checkpoints.reverse();
+    this.heading = this.data.reverseHeading;
+  }
 
   toArray(line) {
     return line.split(' ').map(e => {

@@ -4,7 +4,7 @@ const checkpointsEl = $("#checkpoints line");
 const carEl = $("#car circle");
 
 function getTrack(el) {
-  return el.attr('points').replace(/\s+/g, " ");
+  return el.attr('points').replace(/\s+/g, " ").trim()
 }
 
 function getStart(el) {

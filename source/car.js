@@ -17,10 +17,10 @@ class Car {
     this.deceleration = 0.05;
     this.wheelSize = 5;
 
-    this.initialColor = color(70, 70, 70);
-    this.errorColor = color(255, 0, 0);
-    this.lineColor = color(100, 100, 100, 100);
-    this.pointColor = color(67, 100, 221)
+    this.initialColor = color(config.carColor);
+    this.errorColor = color(config.red);
+    this.lineColor = color(config.carLineColor);
+    this.pointColor = color(config.carPointColor);
     this.color = this.initialColor;
 
     this.wheelBase = this.height;
@@ -56,14 +56,14 @@ class Car {
 
   initBrain() {
     const brain = new NeuralNetwork();
-    brain.add(new Layer({ inodes: 25, onodes: 15 }));
+    brain.add(new Layer({ inodes: 24, onodes: 15 }));
     brain.add(new Layer({ onodes: 10 }))
     brain.add(new Layer({ onodes: 6 }))
     return brain;
   }
 
   auto() {
-    const [up, down, left, right, shiftUp, shiftDown] = this.decide();
+    const [up, down, left, right, sUp, sDown] = this.decide();
 
     if(up > 0.5) {
       this.steer('up');
@@ -79,9 +79,9 @@ class Car {
       this.steer('right');
     }
 
-    if(shiftUp > 0.5) {
+    if(sUp > 0.5) {
       this.shift('up');
-    } else if(shiftDown > 0.5) {
+    } else if(sDown > 0.5) {
       this.shift('down');
     }
   }
@@ -89,11 +89,10 @@ class Car {
   decide() {
     const input = [];
 
-    input.push(map(this.position.x, 0, width, 0, 1)); // position
-    input.push(map(this.position.y, 0, height, 0, 1)); // position
     input.push(map(this.speed, 0, 5, 0, 1)); // speed
     input.push(map(this.gear, 0, 4, 0, 1)) // gear
-    input.push(map(this.steerAngle, 0, this.maxSteerAngle, 0, 1)); // steer angle
+    input.push(map(this.steerAngle, -this.maxSteerAngle, this.maxSteerAngle, 0, 1)); // steer angle
+    input.push(map(this.heading, -PI, PI, 0, 1));
 
     // vision points
     for(let i = 0; i < this.visionPoints.length; i++) {
@@ -226,13 +225,13 @@ class Car {
 
   getVisionLines() {
     this.visionLines = [
-      this.visionLine(0, 300),
-      this.visionLine(30, 250),
-      this.visionLine(-30, 250),
+      this.visionLine(0, 250),
+      this.visionLine(30, 150),
+      this.visionLine(-30, 150),
       this.visionLine(60, 150),
       this.visionLine(-60, 150),
-      this.visionLine(90, 100),
-      this.visionLine(-90, 100),
+      this.visionLine(90, 150),
+      this.visionLine(-90, 150),
       this.visionLine(-145, 150),
       this.visionLine(145, 150),
       this.visionLine(180, 250)
@@ -379,21 +378,12 @@ class Car {
 
     if(checkpoint) {
       const [start, end] = checkpoint;
-      stroke(this.errorColor);
+      stroke(config.green);
       line(start.x, start.y, end.x, end.y)
     }
   }
 
   show() {
-    push();
-    rectMode(CENTER)
-    translate(this.position.x, this.position.y);
-    rotate(-this.heading);
-    this.body();
-    this.lights();
-    this.windshield();
-    pop();
-
     if(config.edgePoints) {
       this.showEdgePoints();
     }
@@ -409,5 +399,14 @@ class Car {
     if(config.currentCheckpoint) {
       this.showCheckpoint();
     }
+
+    push();
+    rectMode(CENTER)
+    translate(this.position.x, this.position.y);
+    rotate(-this.heading);
+    this.body();
+    this.lights();
+    this.windshield();
+    pop();
   }
 }
