@@ -378,8 +378,10 @@ class Car {
 
     if(checkpoint) {
       const [start, end] = checkpoint;
+      strokeWeight(2);
       stroke(config.green);
       line(start.x, start.y, end.x, end.y)
+      strokeWeight(1)
     }
   }
 
