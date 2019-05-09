@@ -16,6 +16,8 @@ function setup() {
   car = new Car({ track });
   stats = new Stats({ car, track });
 
+  car.train(train_data)
+
   stats.add('Speed', 'speed');
   stats.add('Heading', 'heading');
   stats.add('Steer angle', 'steerAngle');
@@ -30,25 +32,36 @@ function draw() {
 
   car.update();
   car.show();
+  car.auto();
 
   if(keyIsDown(DOWN_ARROW)) {
-    car.steer('down')
+    car.steer('down');
+    car.controls.down = 1;
+  } else {
+    car.controls.down = 0;
   }
 
   if(keyIsDown(UP_ARROW)) {
-    car.steer('up')
+    car.steer('up');
+    car.controls.up = 1;
+  } else {
+    car.controls.up = 0;
   }
 
   if(keyIsDown(RIGHT_ARROW)) {
-    car.steer('right')
+    car.steer('right');
+    car.controls.right = 1;
   } else {
     car.resetSteer('right');
+    car.controls.right = 0;
   }
 
   if(keyIsDown(LEFT_ARROW)) {
-    car.steer('left')
+    car.steer('left');
+    car.controls.left = 1;
   } else {
     car.resetSteer('left');
+    car.controls.left = 0;
   }
 
   const offTrack = car.drive();
@@ -59,10 +72,16 @@ function draw() {
 function keyPressed() {
   if(keyCode === 87) {
     car.shift('up');
+    car.controls.shiftUp = 1;
   }
 
   if(keyCode === 83) {
     car.shift('down');
+    car.controls.shiftDown = 1;
+  }
+
+  if(keyCode === 13) {
+    saveJSON(car.data, 'data.json')
   }
 }
 

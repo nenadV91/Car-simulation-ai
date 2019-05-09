@@ -46,6 +46,16 @@ class Car {
     this.points = 0;
     this.round = 0;
 
+    this.controls = {
+      up: 0,
+      down: 0,
+      left: 0,
+      right: 0,
+      shiftUp: 0,
+      shiftDown: 0
+    }
+    this.data = [];
+
     if(opts.brain instanceof NeuralNetwork) {
       this.brain = opts.brain.clone();
       this.brain.mutation(opts.mRate || 0.1);
@@ -63,7 +73,7 @@ class Car {
   }
 
   auto() {
-    const [up, down, left, right, sUp, sDown] = this.decide();
+    const [up, down, left, right, sUp, sDown] = this.predict();
 
     if(up > 0.5) {
       this.steer('up');
@@ -86,7 +96,11 @@ class Car {
     }
   }
 
-  decide() {
+  targets() {
+    return Object.values(this.controls);
+  }
+
+  inputs() {
     const input = [];
 
     input.push(map(this.speed, 0, 5, 0, 1)); // speed
@@ -107,7 +121,37 @@ class Car {
       }
     }
 
-    return this.brain.predict(input);
+    return input;
+  }
+
+  record() {
+    const inputs = this.inputs();
+    const targets = this.targets();
+
+    this.data.push({ inputs, targets })
+
+    // this.brain.query(Matrix.fromArray(inputs));
+    // this.brain.update(Matrix.fromArray(targets));
+  }
+
+  train(data) {
+    console.log("Started training");
+
+    for(let i = 0; i < 50; i++) {
+      console.log(i);
+
+      for(let j = 0; j < data.length; j++) {
+        const { inputs, targets } = random(data)
+        this.brain.query(Matrix.fromArray(inputs));
+        this.brain.update(Matrix.fromArray(targets));
+      }
+    }
+
+    console.log('Finished training')
+  }
+
+  predict() {
+    return this.brain.predict(this.inputs());
   }
 
   update() {
