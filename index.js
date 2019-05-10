@@ -16,10 +16,6 @@ function setup() {
   car = new Car({ track });
   stats = new Stats({ car, track });
 
-  car.train(trainData, {
-    rounds: 100
-  })
-
   stats.add('Speed', 'speed');
   stats.add('Heading', 'heading');
   stats.add('Steer angle', 'steerAngle');
@@ -34,13 +30,7 @@ function draw() {
 
   car.update();
   car.show();
-  // car.learn();
-  // car.record();
-  car.auto();
-
-  if(car.isAuto) {
-    car.auto()
-  }
+  car.inputs()
 
   if(keyIsDown(DOWN_ARROW)) {
     car.steer('down');
@@ -62,9 +52,11 @@ function draw() {
     car.resetSteer('left');
   }
 
-  const offTrack = car.drive();
-  if(offTrack) car.color = car.errorColor;
-  else car.color = car.initialColor;
+  if(car.offTrack()) {
+    car.color = car.errorColor;
+  } else {
+    car.color = car.initialColor;
+  }
 }
 
 function keyPressed() {
@@ -81,7 +73,7 @@ function keyPressed() {
   }
 
   if(keyCode === 65) {
-    car.toggleAuto();
+    // car.toggleAuto();
   }
 }
 

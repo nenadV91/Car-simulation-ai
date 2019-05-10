@@ -42,12 +42,11 @@ class Car {
     this.visionLines = [];
     this.visionPoints = [];
 
+    this.isAuto = false;
     this.checkpoint = 0;
     this.points = 0;
     this.round = 0;
     this.data = [];
-
-    this.isAuto = false;
 
     if(opts.brain instanceof NeuralNetwork) {
       this.brain = opts.brain.clone();
@@ -59,129 +58,46 @@ class Car {
 
   initBrain() {
     const brain = new NeuralNetwork();
-    brain.add(new Layer({ inodes: 7, onodes: 9, lr: 0.01 }));
-    brain.add(new Layer({ onodes: 6, lr: 0.01, activation: 'tanh' }))
+    brain.add(new Layer({ inodes: 6, onodes: 9, lr: 0.01 }));
+    brain.add(new Layer({ onodes: 6, lr: 0.01 }))
     brain.add(new Layer({ onodes: 4, lr: 0.01 }))
     return brain;
   }
 
-  toggleAuto() {
-    this.isAuto = !this.isAuto;
-  }
-
-  auto() {
-    const output = this.brain.predict(this.inputs());
-    const [speed, gear, heading, steerAngle] = output;
-
-    this.speed = this.mapSpeed(speed, true);
-    this.gear = this.mapGear(gear, true);
-    this.heading = this.mapHeading(heading, true);
-    this.steerAngle = this.mapAngle(steerAngle, true);
-  }
-
-  targets() {
+  stateInputs() {
     return [
-      this.mapSpeed(this.speed),
-      this.mapGear(this.gear),
-      this.mapHeading(this.heading),
-      this.mapAngle(this.steerAngle)
+      map(this.speed, -2, 5, 0, 1),
+      map(this.heading, -PI, PI, 0, 1),
+      map(this.steerAngle, -this.maxSteerAngle, this.maxSteerAngle, 0, 1)
     ]
   }
 
-  mapSpeed(value, reverse = false) {
-    if(!reverse) {
-      return map(value, 0, 5, 0, 1);
-    } else {
-      return floor(map(value, 0, 1, 0, 5))
-    }
-  }
+  sensoryInputs() {
+    const inputs = [];
 
-  mapGear(value, reverse = false) {
-    if(!reverse) {
-      return map(value, 1, 4, 0, 1);
-    } else {
-      return floor(map(value, 0, 1, 1, 4))
-    }
-  }
-
-  mapAngle(value, reverse = false) {
-    const min = -this.maxSteerAngle;
-    const max = this.maxSteerAngle;
-
-    if(!reverse) {
-      return map(value, min, max, 0, 1);
-    } else {
-      return map(value, 0, 1, min, max);
-    }
-  }
-
-  mapHeading(value, reverse = false) {
-    if(!reverse) {
-      return map(value, -PI, PI, 0, 1);
-    } else {
-      return map(value, 0, 1, -PI, PI)
-    }
-  }
-
-  inputs() {
-    const input = [];
-
-    input.push(this.mapSpeed(this.speed)); // speed
-    input.push(this.mapGear(this.gear)) // gear
-    input.push(this.mapHeading(this.heading)); // heading
-    input.push(this.mapAngle(this.steerAngle)); // steerAngle
-
-    // vision points
     for(let i = 0; i < this.visionPoints.length; i++) {
       const point = this.visionPoints[i];
 
       if(point) {
         const dist = this.position.dist(point);
         const value = map(dist, 0, 150, 0, 1);
-        input.push(value)
+        inputs.push(value)
       } else {
-        input.push(0);
+        inputs.push(1);
       }
     }
 
-    return input;
+    return inputs;
   }
 
-  record() {
-    const inputs = this.inputs();
-    const targets = this.targets();
-    this.data.push({ inputs, targets });
-
-    if(this.data.length % 500 === 0) {
-      console.log(`recorded: ${this.data.length} units`);
-    }
+  inputs() {
+    const state = this.stateInputs();
+    const sensory = this.sensoryInputs();
+    return [...state, ...sensory];
   }
 
-  learn() {
-    if(this.speed > 0.25) {
-      this.brain.query(Matrix.fromArray(this.inputs()));
-      this.brain.update(Matrix.fromArray(this.targets()));
-    }
-  }
-
-  train(data, opts = {}) {
-    console.log("Started training");
-
-    for(let i = 0; i < (opts.rounds || 10); i++) {
-      console.log(`training round: ${i}`);
-
-      for(let j = 0; j < data.length; j++) {
-        const { inputs, targets } = random(data)
-        this.brain.query(Matrix.fromArray(inputs));
-        this.brain.update(Matrix.fromArray(targets));
-      }
-    }
-
-    console.log('Finished training');
-  }
-
-  predict() {
-    return this.brain.predict(this.inputs());
+  toggleAuto() {
+    this.isAuto = !this.isAuto;
   }
 
   update() {
@@ -231,6 +147,9 @@ class Car {
       if(this.steerAngle > -this.maxSteerAngle) this.steerAngle -= 0.08;
       if(this.steerAngle < -this.maxSteerAngle) this.steerAngle = -this.maxSteerAngle;
     }
+
+    if(this.speed < -2) this.speed = -2;
+    if(this.speed > 5) this.speed = 5;
   }
 
   move() {
@@ -312,7 +231,7 @@ class Car {
     ]
   }
 
-  drive() {
+  offTrack() {
     let inner = this.track.inner;
     let outer = this.track.outer;
     let offTrack = false;
