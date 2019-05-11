@@ -4,76 +4,61 @@ let width;
 let height;
 let track;
 let stats;
-let car;
+let timer;
+let population;
+
+let trackNumber = 0;
+let totalUnits = 100;
+let mutationRate = 0.25;
+let time = 0;
 
 function setup() {
-  data = tracks[0];
+  data = tracks[trackNumber];
   width = data.width || 800;
   height = data.height || 650;
   canvas = createCanvas(width, height);
+  canvas.parent('canvas');
 
   track = new Track(data);
-  car = new Car({ track });
-  stats = new Stats({ car, track });
+  population = new Population(Car, totalUnits, { mutationRate, track });
+  stats = new Stats({ population })
 
-  stats.add('Speed', 'speed');
-  stats.add('Heading', 'heading');
-  stats.add('Steer angle', 'steerAngle');
-  stats.add('Reverse', null, car => car.speed >= 0 ? 'False' : 'True')
-  stats.add('Gear', null, car => int(car.gear));
+  stats.add('Generation', 'generation');
+  stats.add('Active units', null, population => population.active.length);
+  stats.add('Time', null, () => toTime(time));
+
+  timer = setInterval(() => time++, 1000)
 }
 
 function draw() {
-  background(config.bgcolor);
+  clear();
   track.show();
   stats.show();
 
-  car.update();
-  car.show();
-  car.inputs()
-
-  if(keyIsDown(DOWN_ARROW)) {
-    car.steer('down');
+  if(population.isEmpty) {
+    population.reset();
   }
 
-  if(keyIsDown(UP_ARROW)) {
-    car.steer('up');
-  }
+  for(let i = population.active.length - 1; i >= 0; i--) {
+    const unit = population.active[i];
 
-  if(keyIsDown(RIGHT_ARROW)) {
-    car.steer('right');
-  } else {
-    car.resetSteer('right');
-  }
+    unit.update();
+    unit.drive();
+    unit.show();
 
-  if(keyIsDown(LEFT_ARROW)) {
-    car.steer('left');
-  } else {
-    car.resetSteer('left');
-  }
+    if(unit.health <= 0) {
+      population.remove(i)
+    }
 
-  if(car.offTrack()) {
-    car.color = car.errorColor;
-  } else {
-    car.color = car.initialColor;
+    if(unit.offTrack()) {
+      population.remove(i)
+    }
   }
 }
 
 function keyPressed() {
-  if(keyCode === 87) {
-    car.shift('up');
-  }
-
-  if(keyCode === 83) {
-    car.shift('down');
-  }
-
   if(keyCode === 13) {
     saveJSON(car.data, 'data.json')
-  }
-
-  if(keyCode === 65) {
-    // car.toggleAuto();
   }
 }
 

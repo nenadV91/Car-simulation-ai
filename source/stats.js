@@ -1,6 +1,6 @@
 class Stats {
-  constructor({car}) {
-    this.car = car;
+  constructor({ population }) {
+    this.population = population;
     this.count = 0;
     this.stats = []
   }
@@ -12,13 +12,13 @@ class Stats {
 
   show() {
     this.stats.forEach(({ key, label, index, value }) => {
-      const val = value ? value(this.car) : this.car[key].toFixed(2);
+      const val = value ? value(this.population) : this.population[key].toFixed(2);
       const string = `${label}: ${val}`
 
-      fill(1)
-      noStroke()
-      textSize(12)
-      text(string, 15, height - index * 15)
+      fill(1);
+      noStroke();
+      textSize(10);
+      text(string, 30, 15 + index * 15);
     })
   }
 }

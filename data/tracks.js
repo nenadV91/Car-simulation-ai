@@ -5,7 +5,7 @@ const tracks = [{
   "heading": 105,
   "reverseHeading": -75,
   "width": 780,
-  "height": 600,
+  "height": 550,
   "checkpoints": [
     [{ "x": 411, "y": 104 }, { "x": 430, "y": 172 }],
     [{ "x": 526, "y": 71 }, { "x": 545, "y": 141 }],
@@ -31,7 +31,7 @@ const tracks = [{
   "heading": 90,
   "reverseHeading": -90,
   "width": 780,
-  "height": 600,
+  "height": 575,
   "checkpoints": [
     [{ "x": 361, "y": 48 }, { "x": 361, "y": 114 }],
     [{ "x": 511, "y": 48 }, { "x": 511, "y": 114 }],

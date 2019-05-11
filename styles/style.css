@@ -7,3 +7,19 @@ html {
 canvas {
   vertical-align: top;
 }
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*#canvas {
+  box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.1);
+}*/
+
+#controls {
+  flex: 1;
+  height: 100%;
+}

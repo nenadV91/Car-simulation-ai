@@ -44,15 +44,37 @@ class Car {
 
     this.isAuto = false;
     this.checkpoint = 0;
-    this.points = 0;
-    this.round = 0;
     this.data = [];
+    this.health = 100;
+    this.score = 0;
 
     if(opts.brain instanceof NeuralNetwork) {
       this.brain = opts.brain.clone();
-      this.brain.mutation(opts.mRate || 0.1);
+      this.brain.mutate(opts.mutationRate || 0.1);
     } else {
       this.brain = this.initBrain();
+    }
+  }
+
+  drive() {
+    const inputs = this.inputs();
+    const output = this.brain.query(Matrix.fromArray(inputs));
+    const [up, down, left, right] = output;
+
+    if(up > 0.5) {
+      this.steer('up')
+    }
+
+    if(down > 0.5) {
+      this.steer('down')
+    }
+
+    if(left > 0.5) {
+      this.steer('left')
+    }
+
+    if(right > 0.5) {
+      this.steer('right')
     }
   }
 
@@ -60,7 +82,7 @@ class Car {
     const brain = new NeuralNetwork();
     brain.add(new Layer({ inodes: 6, onodes: 9, lr: 0.01 }));
     brain.add(new Layer({ onodes: 6, lr: 0.01 }))
-    brain.add(new Layer({ onodes: 4, lr: 0.01 }))
+    brain.add(new Layer({ onodes: 4 }))
     return brain;
   }
 
@@ -109,6 +131,12 @@ class Car {
     this.constrain();
     this.friction();
     this.move();
+
+    if(this.speed > 0.25) {
+      this.points += 0.5;
+    }
+
+    this.health -= 0.5;
   }
 
   constrain() {
@@ -310,12 +338,14 @@ class Car {
         const crossed = this.isColliding(point, next, start, end);
 
         if(crossed) {
-          this.points++
           this.checkpoint++;
+          this.score += 50;
+          this.health += 50;
 
           if(this.checkpoint >= checkpoints.length) {
             this.checkpoint = 0;
-            this.round++;
+            this.score += 100;
+            this.health += 50;
           }
 
           break;
@@ -339,6 +369,8 @@ class Car {
 
   body() {
     noStroke();
+    const alpha = map(this.health, 0, 200, 50, 200);
+    this.color.setAlpha(alpha);
     fill(this.color);
     rect(0, 0, this.width, this.height);
   }

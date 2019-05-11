@@ -9,8 +9,8 @@ const config = {
   red: 'rgb(255, 0, 0)',
   green: 'rgb(50, 174, 73)',
   checkpoints: true,
-  currentCheckpoint: true,
-  visionLines: true,
-  visionPoints: true,
+  currentCheckpoint: false,
+  visionLines: false,
+  visionPoints: false,
   edgePoints: false
 }
