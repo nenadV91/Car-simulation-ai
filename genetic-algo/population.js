@@ -1,15 +1,15 @@
 class Population {
-  constructor(Unit, total = 100, opts = {}) {
+  constructor(Unit, opts = {}) {
     this.opts = opts;
-    this.generation = 1;
-    this.imortal = false;
     this.Unit = Unit;
-    this.total = total;
+    this.total = opts.total || 100;
+    this.mutationRate = opts.mutationRate || 0.25;
+
+    this.generation = 1;
     this.active = [];
     this.saved = [];
     this.pool = [];
     this.score = 0;
-    this.mutationRate = opts.mutationRate;
 
     this.create()
   }
@@ -40,12 +40,6 @@ class Population {
     this.saved.push(unit);
   }
 
-  update() {
-    if(frameCount % 5 === 0) {
-      this.score += 1;
-    }
-  }
-
   load(data) {
     for(let i = this.active.length - 1; i >= 0; i--) {
       const unit = this.active[i];
@@ -55,6 +49,15 @@ class Population {
   }
 
   reset() {
+    this.active = [];
+    this.saved = [];
+    this.pool = [];
+    this.generation = 1;
+    this.score = 0;
+    this.create();
+  }
+
+  update() {
     this.calcFitness();
     this.nextGeneration();
 
@@ -89,7 +92,8 @@ class Population {
     this.pool = this.saved.slice(-5);
 
     const total = this.pool.reduce((r, e) => {
-      return r + e.score
+      if(e) return r + e.score;
+      else return r;
     }, 0);
 
     this.pool.forEach(unit => {

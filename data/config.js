@@ -8,7 +8,7 @@ const config = {
   carPointColor: 'rgb(67, 100, 221)',
   red: 'rgb(255, 0, 0)',
   green: 'rgb(50, 174, 73)',
-  checkpoints: true,
+  checkpoints: false,
   currentCheckpoint: false,
   visionLines: false,
   visionPoints: false,

@@ -1,7 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
 body,
 html {
   margin: 0;
   padding: 0;
+  font-family: 'Open Sans', sans-serif !important;
+  text-align: center;
 }
 
 canvas {
@@ -10,16 +14,118 @@ canvas {
 
 #app {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  display: flex;
+  max-width: 1300px;
+  margin: 0 auto;
 }
-
-/*#canvas {
-  box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.1);
-}*/
 
 #controls {
   flex: 1;
   height: 100%;
+  padding-left: 25px 15px;
+}
+
+button {
+  margin-right: 5px;
+}
+
+button:active,
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+button,
+select,
+label.file-upload,
+textarea {
+  font-family: 'Open Sans', sans-serif !important;
+  border: 1px solid rgb(169, 169, 169, 0.7);
+  transition: all 0.2s ease-in;
+  padding: 2px 10px;
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+  color: black;
+}
+
+select,
+input,
+textarea {
+  min-width: 200px;
+}
+
+textarea {
+  width: 100%;
+}
+
+button:hover,
+label.file-upload:hover {
+  background: rgba(0, 0, 0, 0.075);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+label.file-upload {
+  font-size: 13px;
+}
+
+.ui-field {
+  display: flex;
+  text-align: left;
+  margin-bottom: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.ui-value {
+  flex: 1;
+  padding-left: 15px;
+}
+
+.ui-label-text {
+  font-size: 14px;
+  color: black;
+}
+
+.ui-label-subtext {
+  color: #aaa;
+  font-size: 10px;
+  max-width: 100px
+}
+
+.ui-label-subtext.font-medium {
+  font-size: 12px;
+}
+
+.ui-value.slider {
+  max-width: 400px;
+}
+
+.irs--modern .irs-grid-text {
+  display: none;
+}
+
+.info-text {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.ui-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-buttons button {
+  margin-bottom: 5px;
+}
+
+.ui-field button.active {
+  color: white;
+  background-color: #20b426;
+  border-color: #20b426;
 }

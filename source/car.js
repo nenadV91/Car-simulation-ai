@@ -136,7 +136,7 @@ class Car {
       this.points += 0.5;
     }
 
-    this.health -= 0.5;
+    this.health -= 0.75;
   }
 
   constrain() {
@@ -437,5 +437,23 @@ class Car {
     this.lights();
     this.windshield();
     pop();
+  }
+
+  getData() {
+    return this.brain.layers.reduce((r, e, i) => {
+      const layer = {}
+      layer.weights = e.weights;
+      layer.bias = e.bias;
+      r.push(layer)
+      return r;
+    }, [])
+  }
+
+  loadData(data) {
+    for(let i = 0; i < this.brain.layers.length; i++) {
+      const layer = this.brain.layers[i];
+      Object.assign(layer.weights, data[i].weights);
+      Object.assign(layer.bias, data[i].bias);
+    }
   }
 }

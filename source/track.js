@@ -1,27 +1,33 @@
 class Track {
-  constructor(data) {
-    this.data = data;
+  constructor({ tracks, selected }) {
+    this.tracks = tracks;
+    this.selected = selected || 0;
+
+    this.data = this.tracks[this.selected];
     this.checkpointColor = color(config.trackCheckpointColor);
     this.stroke = color(config.trackStroke);
     this.fill = color(config.trackFill);
+    this.init();
+  }
 
-    if(typeof data !== 'object') {
+  init() {
+    if(typeof this.data !== 'object') {
       throw new Error('data param must be and object.')
     }
 
-    if(!data.inner || !data.outer) {
+    if(!this.data.inner || !this.data.outer) {
       throw new Error("data must have inner and outer lines.")
     }
 
-    if(typeof data.inner !== 'string' || typeof data.outer !== 'string') {
+    if(typeof this.data.inner !== 'string' || typeof this.data.outer !== 'string') {
       throw new Error("Inner and outer lines must be strings.")
     }
 
-    this.inner = this.toArray(data.inner);
-    this.outer = this.toArray(data.outer).reverse();
-    this.checkpoints = data.checkpoints || [];
-    this.start = data.start || { x: 50, y: 50 }
-    this.heading = data.heading || 180;
+    this.inner = this.toArray(this.data.inner);
+    this.outer = this.toArray(this.data.outer).reverse();
+    this.checkpoints = this.data.checkpoints || [];
+    this.start = this.data.start || { x: 50, y: 50 }
+    this.heading = this.data.heading || 180;
   }
 
   reverse() {
@@ -46,6 +52,12 @@ class Track {
       stroke(this.checkpointColor)
       line(start.x, start.y, end.x, end.y);
     })
+  }
+
+  change(selected) {
+    this.selected = selected;
+    this.data = this.tracks[this.selected];
+    this.init();
   }
 
   show() {

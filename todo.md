@@ -1,0 +1,6 @@
+- Toggle vision lines, points, checkpoint lines DONE
+- Save / Load data
+- Load pre-trained data
+- Toggle reverse track
+- Speed shift as output
+- Slice last n units

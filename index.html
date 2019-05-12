@@ -4,16 +4,100 @@
 <head>
   <meta charset="UTF-8">
   <title>Document</title>
+  <link rel="stylesheet" href="styles/ion.rangeSlider.min.css">
   <link rel="stylesheet" href="styles/style.css">
 </head>
 
 <body>
   <div id="app">
     <div id="canvas"></div>
-    <div id="controls"></div>
+
+    <div id="controls">
+      <div class="ui-field">
+        <button id="kill-active">Kill active</button>
+        <button id="reset">Reset all</button>
+      </div>
+
+      <div class="ui-field">
+        <button data-config="visionLines" class="toggle-button" id="vision-lines">Vision lines</button>
+        <button data-config="visionPoints" class="toggle-button" id="vision-points">Vision points</button>
+        <button data-config="checkpoints" class="toggle-button" id="checkpoints">Checkpoints</button>
+      </div>
+
+      <div class="ui-field">
+        <div class="ui-label">
+          <div class="ui-label-text">Select track</div>
+          <div class="ui-label-subtext">Pick one of multiple tracks</div>
+        </div>
+
+        <div class="ui-value">
+          <select id="track-select">
+            <option disabled hidden value="#">Select track</option>
+            <option value="0">Track 1</option>
+            <option value="1">Track 2</option>
+            <option value="2">Track 3</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ui-field">
+        <div class="ui-label">
+          <div class="ui-label-text">Total units:</div>
+          <div class="ui-label-subtext">Applied on the next generation</div>
+        </div>
+
+        <div class="ui-value slider">
+          <input type="text" id="total-units-slider" />
+        </div>
+      </div>
+
+      <div class="ui-field">
+        <div class="ui-label">
+          <div class="ui-label-text">Mutation rate:</div>
+          <div class="ui-label-subtext">Applied on the next generation</div>
+        </div>
+
+        <div class="ui-value slider">
+          <input type="text" id="mutation-rate-slider" />
+        </div>
+      </div>
+
+      <div class="ui-field">
+        <button id="save-data">Save data</button>
+        <div class="info-text ui-value">Save brain data as json file from currently best unit.</div>
+      </div>
+
+      <div class="ui-field">
+        <label class="file-upload ui-label">
+          <input id="load-data" type="file" />
+          Load data
+        </label>
+
+        <div class="info-text ui-value">
+          <div>Load brain data from json file.</div>
+          <div>Data will be applied to whole population + mutation.</div>
+          <div>Data size must match brain size of current population.</div>
+        </div>
+      </div>
+
+      <div class="ui-field">
+        <div class="ui-label ui-buttons">
+          <button id="apply-data">Apply data</button>
+          <button id="clear-data">Clear data</button>
+        </div>
+
+        <div class="ui-value">
+          <textarea id="loaded-data" cols="30" rows="5"></textarea>
+        </div>
+      </div>
+
+
+    </div><!-- End of controls -->
   </div>
 
   <!-- Scripts -->
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/ion.rangeSlider.min.js"></script>
   <script src="scripts/p5.min.js"></script>
   <script src="scripts/p5.collide2d.min.js"></script>
   <script src="scripts/custom.js"></script>
@@ -27,6 +111,7 @@
   <script src="source/car.js"></script>
   <script src="source/track.js"></script>
   <script src="source/stats.js"></script>
+  <script src="source/controls.js"></script>
 
   <!-- Genetic algo -->
   <script src="genetic-algo/population.js"></script>

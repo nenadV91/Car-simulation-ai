@@ -1,42 +1,40 @@
 let canvas;
-let data;
 let width;
 let height;
 let track;
 let stats;
 let timer;
+let controls;
 let population;
 
-let trackNumber = 0;
-let totalUnits = 100;
-let mutationRate = 0.25;
 let time = 0;
 
 function setup() {
-  data = tracks[trackNumber];
-  width = data.width || 800;
-  height = data.height || 650;
+  track = new Track({ tracks });
+
+  width = track.width || 800;
+  height = track.height || 650;
   canvas = createCanvas(width, height);
   canvas.parent('canvas');
 
-  track = new Track(data);
-  population = new Population(Car, totalUnits, { mutationRate, track });
+  population = new Population(Car, { track });
+  controls = new Controls({ track, population });
   stats = new Stats({ population })
 
-  stats.add('Generation', 'generation');
-  stats.add('Active units', null, population => population.active.length);
   stats.add('Time', null, () => toTime(time));
+  stats.add('Generation', 'generation');
+  stats.add('Active', null, population => population.active.length);
 
   timer = setInterval(() => time++, 1000)
 }
 
 function draw() {
-  clear();
+  background(255);
   track.show();
   stats.show();
 
   if(population.isEmpty) {
-    population.reset();
+    population.update();
   }
 
   for(let i = population.active.length - 1; i >= 0; i--) {
@@ -60,8 +58,4 @@ function keyPressed() {
   if(keyCode === 13) {
     saveJSON(car.data, 'data.json')
   }
-}
-
-function mousePressed() {
-  console.log(mouseX, mouseY)
 }
