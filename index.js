@@ -22,6 +22,7 @@ function setup() {
   stats = new Stats({ population })
 
   stats.add('Time', null, () => toTime(time));
+  stats.add('Direction', null, () => config.reverse ? 'reversed' : 'regular');
   stats.add('Generation', 'generation');
   stats.add('Active', null, population => population.active.length);
 

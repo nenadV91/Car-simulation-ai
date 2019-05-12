@@ -1,6 +1,10 @@
-- Toggle vision lines, points, checkpoint lines DONE
-- Save / Load data
-- Load pre-trained data
-- Toggle reverse track
 - Speed shift as output
 - Slice last n units
+- Fix vision points
+- Customization of vision lines (lenght, number, angle)
+- Customization of brain
+- Crossover of genes
+
+## Improvements
+- on inputs
+- on brain structure

@@ -12,5 +12,10 @@ const config = {
   currentCheckpoint: false,
   visionLines: false,
   visionPoints: false,
-  edgePoints: false
+  edgePoints: false,
+  reverse: false,
+  populationTotal: 75,
+  mutationRate: 0.15,
+  lineLength: 75,
+  lineNumber: 3
 }

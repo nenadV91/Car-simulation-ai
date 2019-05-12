@@ -14,14 +14,29 @@
 
     <div id="controls">
       <div class="ui-field">
-        <button id="kill-active">Kill active</button>
-        <button id="reset">Reset all</button>
+        <div class="ui-label">
+          <div class="ui-label-text">Main</div>
+          <div class="ui-label-subtext">Main simulation controls</div>
+        </div>
+
+        <div class="ui-value">
+          <button id="kill-active">Kill active</button>
+          <button id="reset">Reset all</button>
+          <button id="reverse">Reverse</button>
+        </div>
       </div>
 
       <div class="ui-field">
-        <button data-config="visionLines" class="toggle-button" id="vision-lines">Vision lines</button>
-        <button data-config="visionPoints" class="toggle-button" id="vision-points">Vision points</button>
-        <button data-config="checkpoints" class="toggle-button" id="checkpoints">Checkpoints</button>
+        <div class="ui-label">
+          <div class="ui-label-text">Display</div>
+          <div class="ui-label-subtext">Change displayed elements</div>
+        </div>
+
+        <div class="ui-value">
+          <button data-config="visionLines" class="toggle-button" id="vision-lines">Vision lines</button>
+          <button data-config="visionPoints" class="toggle-button" id="vision-points">Vision points</button>
+          <button data-config="checkpoints" class="toggle-button" id="checkpoints">Checkpoints</button>
+        </div>
       </div>
 
       <div class="ui-field">
@@ -32,10 +47,22 @@
 
         <div class="ui-value">
           <select id="track-select">
-            <option disabled hidden value="#">Select track</option>
             <option value="0">Track 1</option>
             <option value="1">Track 2</option>
             <option value="2">Track 3</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ui-field">
+        <div class="ui-label">
+          <div class="ui-label-text">Pre-trained</div>
+          <div class="ui-label-subtext">Use pre-trained examples</div>
+        </div>
+
+        <div class="ui-value">
+          <select id="pre-trained-data">
+            <option value="" selected disabled hidden>Default</option>
           </select>
         </div>
       </div>
@@ -70,7 +97,7 @@
       <div class="ui-field">
         <label class="file-upload ui-label">
           <input id="load-data" type="file" />
-          Load data
+          <span>Load data</span>
         </label>
 
         <div class="info-text ui-value">
@@ -80,7 +107,7 @@
         </div>
       </div>
 
-      <div class="ui-field">
+      <div class="ui-field column">
         <div class="ui-label ui-buttons">
           <button id="apply-data">Apply data</button>
           <button id="clear-data">Clear data</button>
@@ -104,17 +131,15 @@
 
   <!-- Data -->
   <script src="data/tracks.js"></script>
-  <script src="data/config.js"></script>
-  <script src="data/train-data.js"></script>
+  <script src="data/trained.js"></script>
 
   <!-- Game -->
+  <script src="source/config.js"></script>
+  <script src="source/population.js"></script>
   <script src="source/car.js"></script>
   <script src="source/track.js"></script>
   <script src="source/stats.js"></script>
   <script src="source/controls.js"></script>
-
-  <!-- Genetic algo -->
-  <script src="genetic-algo/population.js"></script>
 
   <!-- Neural network -->
   <script src="neural-network/matrix.js"></script>

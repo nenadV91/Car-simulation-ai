@@ -18,7 +18,7 @@ class Stats {
       fill(1);
       noStroke();
       textSize(10);
-      text(string, 30, 15 + index * 15);
+      text(string, 30, (15 + index * 15));
     })
   }
 }

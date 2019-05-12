@@ -17,6 +17,10 @@ class Car {
     this.deceleration = 0.05;
     this.wheelSize = 5;
 
+    this.lineLength = config.lineLength;
+    this.lineNumber = config.lineNumber;
+    this.mutationRate = config.mutationRate;
+
     this.initialColor = color(config.carColor);
     this.errorColor = color(config.red);
     this.lineColor = color(config.carLineColor);
@@ -50,7 +54,7 @@ class Car {
 
     if(opts.brain instanceof NeuralNetwork) {
       this.brain = opts.brain.clone();
-      this.brain.mutate(opts.mutationRate || 0.1);
+      this.brain.mutate(this.mutationRate);
     } else {
       this.brain = this.initBrain();
     }
@@ -80,7 +84,8 @@ class Car {
 
   initBrain() {
     const brain = new NeuralNetwork();
-    brain.add(new Layer({ inodes: 6, onodes: 9, lr: 0.01 }));
+    const inodes = this.lineNumber + 3;
+    brain.add(new Layer({ inodes, onodes: 9, lr: 0.01 }));
     brain.add(new Layer({ onodes: 6, lr: 0.01 }))
     brain.add(new Layer({ onodes: 4 }))
     return brain;
@@ -246,17 +251,17 @@ class Car {
 
   getVisionLines() {
     this.visionLines = [
-      this.visionLine(0, 150),
-      this.visionLine(45, 100),
-      this.visionLine(-45, 100),
-      // this.visionLine(60, 100),
-      // this.visionLine(-60, 100),
-      // this.visionLine(90, 150),
-      // this.visionLine(-90, 150),
-      // this.visionLine(-145, 150),
-      // this.visionLine(145, 150),
-      // this.visionLine(180, 250)
+      this.visionLine(0, this.lineLength),
+      this.visionLine(30, this.lineLength * 0.7),
+      this.visionLine(-30, this.lineLength * 0.7)
     ]
+
+    if(this.lineNumber == 5) {
+      this.visionLines.push(
+        this.visionLine(65, this.lineLength * 0.5),
+        this.visionLine(-65, this.lineLength * 0.5)
+      )
+    }
   }
 
   offTrack() {

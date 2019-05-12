@@ -23,6 +23,8 @@ class Track {
       throw new Error("Inner and outer lines must be strings.")
     }
 
+    this.height = this.data.height;
+    this.width = this.data.width;
     this.inner = this.toArray(this.data.inner);
     this.outer = this.toArray(this.data.outer).reverse();
     this.checkpoints = this.data.checkpoints || [];
@@ -31,8 +33,9 @@ class Track {
   }
 
   reverse() {
+    const { heading, reverseHeading } = this.data;
+    this.heading = config.reverse ? heading : reverseHeading;
     this.checkpoints.reverse();
-    this.heading = this.data.reverseHeading;
   }
 
   toArray(line) {

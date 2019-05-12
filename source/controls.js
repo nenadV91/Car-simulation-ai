@@ -3,23 +3,24 @@ class Controls {
     this.params = params;
     this.track = params.track;
     this.population = params.population;
+    this.trainedData = trainedData[config.lineNumber];
 
-    this.$reset = $("#reset");
+    this.$reset = $("#reset-all");
     this.$trackSelect = $("#track-select");
     this.$unitsSlider = $("#total-units-slider");
     this.$mutationSlider = $("#mutation-rate-slider");
     this.$killActive = $("#kill-active");
-
     this.$visionLines = $("#vision-lines");
     this.$visionPoints = $("#vision-points");
     this.$checkpoints = $("#checkpoints");
     this.$toggleButtons = $(".toggle-button");
-
     this.$saveData = $("#save-data");
     this.$loadData = $("#load-data");
     this.$loaded = $("#loaded-data");
     this.$clear = $("#clear-data");
     this.$apply = $("#apply-data");
+    this.$reverse = $("#reverse");
+    this.$preTrained = $("#pre-trained-data");
 
     this.initSliders = this.initSliders.bind(this);
     this.trackSelect = this.trackSelect.bind(this);
@@ -30,17 +31,21 @@ class Controls {
     this.clear = this.clear.bind(this);
     this.apply = this.apply.bind(this);
     this.readerLoad = this.readerLoad.bind(this);
+    this.reverse = this.reverse.bind(this);
+    this.selectTrained = this.selectTrained.bind(this);
 
     this.$reset.on('click', this.reset);
     this.$trackSelect.on('change', this.trackSelect);
     this.$killActive.on('click', this.killActive);
-    this.$visionLines.on('click', (e) => this.toggle('visionLines', e));
-    this.$visionPoints.on('click', (e) => this.toggle('visionPoints', e));
-    this.$checkpoints.on('click', (e) => this.toggle('checkpoints', e));
     this.$saveData.on('click', this.save);
     this.$loadData.on('change', this.upload);
     this.$clear.on('click', this.clear);
     this.$apply.on('click', this.apply);
+    this.$preTrained.on('change', this.selectTrained);
+    this.$visionLines.on('click', (e) => this.toggle('visionLines', e));
+    this.$visionPoints.on('click', (e) => this.toggle('visionPoints', e));
+    this.$checkpoints.on('click', (e) => this.toggle('checkpoints', e));
+    this.$reverse.on('click', this.reverse);
 
     this.$toggleButtons.each(function() {
       if(config[$(this).data('config')]) {
@@ -49,7 +54,34 @@ class Controls {
     })
 
     this.reader = new FileReader();
+    this.initPretrained();
     this.initSliders();
+  }
+
+  initPretrained() {
+    if(this.trainedData) {
+      this.trainedData.forEach((el, index) => {
+        const option = $("<option />", {
+          value: index,
+          text: `Pre-trained ${index + 1}`
+        })
+
+        this.$preTrained.append(option)
+      })
+    }
+  }
+
+  selectTrained(event) {
+    const value = event.target.value;
+    const data = this.trainedData[value];
+    const input = JSON.stringify(data, 0, 4)
+    this.$loaded.val(input);
+  }
+
+  reverse(event) {
+    this.track.reverse();
+    this.killActive();
+    config.reverse = !config.reverse;
   }
 
   clear() {
@@ -70,7 +102,6 @@ class Controls {
       } catch (err) {
         console.log('Not valid data type.')
       }
-
     }
   }
 
@@ -110,6 +141,12 @@ class Controls {
 
   trackSelect(event) {
     const value = int(event.target.value);
+
+    if(config.reverse) {
+      this.track.reverse();
+      config.reverse = false;
+    }
+
     this.track.change(value);
     this.population.killActive();
   }
@@ -122,9 +159,9 @@ class Controls {
       max: 250,
       grid: true,
       skin: "modern",
-      from: that.population.total,
+      from: config.populationTotal,
       onFinish: function(data) {
-        that.population.total = data.from;
+        config.populationTotal = data.from;
       }
     });
 
@@ -134,9 +171,9 @@ class Controls {
       step: 0.01,
       grid: true,
       skin: "modern",
-      from: that.population.mutationRate,
+      from: config.mutationRate,
       onFinish: function(data) {
-        that.population.mutationRate = data.from;
+        config.mutationRate = data.from;
       }
     });
   }

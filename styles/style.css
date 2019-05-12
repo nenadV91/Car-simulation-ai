@@ -13,18 +13,27 @@ canvas {
 }
 
 #app {
-  min-height: 100vh;
-  justify-content: center;
-  align-items: center;
   display: flex;
+  align-items: center;
+  min-height: 100vh;
   max-width: 1300px;
+  padding: 75px 0;
   margin: 0 auto;
 }
 
 #controls {
-  flex: 1;
-  height: 100%;
-  padding-left: 25px 15px;
+  padding: 25px 15px;
+  position: relative;
+  left: 0;
+  z-index: 2;
+}
+
+#canvas {
+  position: fixed;
+  transform: translateY(-50%);
+  z-index: 1;
+  right: 10%;
+  top: 50%;
 }
 
 button {
@@ -47,8 +56,13 @@ textarea {
   padding: 2px 10px;
   border-radius: 3px;
   background: none;
-  cursor: pointer;
   color: black;
+}
+
+button,
+select,
+label.file-upload {
+  cursor: pointer;
 }
 
 select,
@@ -81,6 +95,17 @@ label.file-upload {
   align-items: flex-start;
   justify-content: flex-start;
 }
+
+.ui-field.column {
+  flex-direction: column;
+}
+
+.ui-field.column .ui-value {
+  padding-left: 0;
+  width: 100%;
+}
+
+.ui-field.column textarea {}
 
 .ui-value {
   flex: 1;
@@ -115,11 +140,6 @@ label.file-upload {
   color: #aaa;
 }
 
-.ui-buttons {
-  display: flex;
-  flex-direction: column;
-}
-
 .ui-buttons button {
   margin-bottom: 5px;
 }
@@ -128,4 +148,23 @@ label.file-upload {
   color: white;
   background-color: #20b426;
   border-color: #20b426;
+}
+
+@media(max-width: 1400px) {
+  #canvas {
+    right: 5%;
+  }
+}
+
+@media(max-width: 1200px) {
+  #app {
+    flex-direction: column;
+  }
+
+  #canvas {
+    position: relative;
+    transform: translate(0);
+    top: 0;
+    left: 0;
+  }
 }

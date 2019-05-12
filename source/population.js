@@ -2,14 +2,11 @@ class Population {
   constructor(Unit, opts = {}) {
     this.opts = opts;
     this.Unit = Unit;
-    this.total = opts.total || 100;
-    this.mutationRate = opts.mutationRate || 0.25;
 
     this.generation = 1;
     this.active = [];
     this.saved = [];
     this.pool = [];
-    this.score = 0;
 
     this.create()
   }
@@ -24,7 +21,7 @@ class Population {
   }
 
   create() {
-    for(let i = 0; i < this.total; i++) {
+    for(let i = 0; i < config.populationTotal; i++) {
       this.active.push(new this.Unit(this.opts));
     }
   }
@@ -89,7 +86,7 @@ class Population {
       return a.score - b.score
     });
 
-    this.pool = this.saved.slice(-5);
+    this.pool = this.saved.slice(-5).filter(Boolean);
 
     const total = this.pool.reduce((r, e) => {
       if(e) return r + e.score;
@@ -102,13 +99,10 @@ class Population {
   }
 
   nextGeneration() {
-    for(let i = 0; i < this.total; i++) {
+    for(let i = 0; i < config.populationTotal; i++) {
       const parent = this.pick();
-      const child = new this.Unit({
-        ...this.opts,
-        brain: parent.brain,
-        mutationRate: this.mutationRate
-      });
+      const brain = { ...this.opts, brain: parent.brain }
+      const child = new this.Unit(brain);
       this.active.push(child);
     }
   }
