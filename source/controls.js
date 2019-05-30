@@ -3,12 +3,13 @@ class Controls {
     this.params = params;
     this.track = params.track;
     this.population = params.population;
-    this.trainedData = trainedData[config.lineNumber];
+    this.trainedData = trainedData;
 
     this.$reset = $("#reset-all");
     this.$trackSelect = $("#track-select");
     this.$unitsSlider = $("#total-units-slider");
     this.$mutationSlider = $("#mutation-rate-slider");
+    this.$visionLinesSlider = $("#vision-line-length-slider");
     this.$killActive = $("#kill-active");
     this.$visionLines = $("#vision-lines");
     this.$visionPoints = $("#vision-points");
@@ -174,6 +175,18 @@ class Controls {
       from: config.mutationRate,
       onFinish: function(data) {
         config.mutationRate = data.from;
+      }
+    });
+
+    this.$visionLinesSlider.ionRangeSlider({
+      min: 30,
+      max: 200,
+      step: 1,
+      grid: true,
+      skin: "modern",
+      from: config.lineLength,
+      onFinish: function(data) {
+        config.lineLength = data.from;
       }
     });
   }

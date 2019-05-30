@@ -16,6 +16,6 @@ const config = {
   reverse: false,
   populationTotal: 75,
   mutationRate: 0.15,
-  lineLength: 75,
+  lineLength: 100,
   lineNumber: 3
 }
